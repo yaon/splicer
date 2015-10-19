@@ -10,6 +10,7 @@ data_csv='data.csv'
 segments_dir='segments' + os.path.sep
 tmp_dir='tmp' + os.path.sep
 ffmpeg = 'ffmpeg'
+data_path='https://docs.google.com/spreadsheets/d/1Te4rbNSbv0sW3mmqf735K-ryfsPEfnow00Iuvl7di6c/export?format=csv'
 
 def call (cmd):
     proc = subprocess.Popen(cmd, shell=True)
@@ -55,6 +56,8 @@ try: os.stat(segments_dir)
 except: os.mkdir(segments_dir)
 
 # Parse csv and fill data
+
+urllib.urlretrieve(data_path, data_csv)
 with open('data.csv', 'rb') as csvfile:
     for row in csv.reader(csvfile, delimiter=',', quotechar='"'):
         data.append(segment_data(row[:10]))
