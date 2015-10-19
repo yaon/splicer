@@ -2,8 +2,8 @@
 
 import subprocess
 import os
-from decimal import *
 import csv
+import urllib
 
 # Args
 data_csv='data.csv'
@@ -24,6 +24,10 @@ def check_io(i, o, debug):
     elif o_exists: print('Output exists, skipping '+debug)
     return i_exists and not o_exists
 
+def get_video(url, o):
+    if os.path.isfile(o) or url == "": return
+    urllib.urlretrieve(url, o)
+
 def cut_video (i, o, start, duration):
     debug = 'cut_video '+str(i)+' '+str(o)+' '+str(start)+' '+str(duration)
     if check_io (i, o, debug):
@@ -40,21 +44,26 @@ def concat_videos (videos, o):
 
 class segment_data:
     def __init__(self, data):
-        self.name, self.character, self.comment, self.runner, self.start, self.end, self.duration, self.video = data
+        self.name, self.character, self.comment, self.runner, self.start, self.end, self.duration, self.drive_id, self.drive_player, self.drive_video = data
 
 data = []
 ts_list = []
 
 try: os.stat(tmp_dir)
 except: os.mkdir(tmp_dir)
+try: os.stat(segments_dir)
+except: os.mkdir(segments_dir)
 
 # Parse csv and fill data
 with open('data.csv', 'rb') as csvfile:
     for row in csv.reader(csvfile, delimiter=',', quotechar='"'):
-        data.append(segment_data(row[:8]))
+        data.append(segment_data(row[:10]))
+# Remove first info line
+data.pop(0)
 
 # Cut videos and convert to ts
 for segment in data:
+    get_video(segment.drive_video, segments_dir + segment.name + '.mp4')
     cut_video(segments_dir + segment.name + '.mp4', tmp_dir + segment.name + '.mp4', segment.start, segment.duration)
     convert_ts(tmp_dir + segment.name + '.mp4', tmp_dir + segment.name + '.ts')
     if os.path.isfile(tmp_dir + segment.name + '.ts'):
