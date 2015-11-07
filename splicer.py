@@ -63,6 +63,8 @@ with open('data.csv', 'rb') as csvfile:
         data.append(segment_data(row[:10]))
 # Remove first info line
 data.pop(0)
+# Remove links line
+data.pop(0)
 
 # Cut videos and convert to ts
 for segment in data:
