@@ -26,6 +26,7 @@ def check_io(i, o, debug):
     return i_exists and not o_exists
 
 def get_video(url, o):
+    print('get_video '+str(o))
     if os.path.isfile(o) or url == "": return
     urllib.urlretrieve(url, o)
 
@@ -50,27 +51,29 @@ class segment_data:
 data = []
 ts_list = []
 
-try: os.stat(tmp_dir)
-except: os.mkdir(tmp_dir)
-try: os.stat(segments_dir)
-except: os.mkdir(segments_dir)
+if __name__ == "__main__":
+    try: os.stat(tmp_dir)
+    except: os.mkdir(tmp_dir)
+    try: os.stat(segments_dir)
+    except: os.mkdir(segments_dir)
 
 # Parse csv and fill data
 
-urllib.urlretrieve(data_path, data_csv)
-with open('data.csv', 'rb') as csvfile:
-    for row in csv.reader(csvfile, delimiter=',', quotechar='"'):
-        data.append(segment_data(row[:10]))
+    urllib.urlretrieve(data_path, data_csv)
+    with open('data.csv', 'rb') as csvfile:
+        for row in csv.reader(csvfile, delimiter=',', quotechar='"'):
+            data.append(segment_data(row[:10]))
 # Remove first info line
-data.pop(0)
+    data.pop(0)
+    data.pop(0)
 
 # Cut videos and convert to ts
-for segment in data:
-    get_video(segment.drive_video, segments_dir + segment.name + '.mp4')
-    cut_video(segments_dir + segment.name + '.mp4', tmp_dir + segment.name + '.mp4', segment.start, segment.duration)
-    convert_ts(tmp_dir + segment.name + '.mp4', tmp_dir + segment.name + '.ts')
-    if os.path.isfile(tmp_dir + segment.name + '.ts'):
-        ts_list.append(tmp_dir + segment.name + '.ts')
+    for segment in data:
+        get_video(segment.drive_video, segments_dir + segment.name + '.mp4')
+        cut_video(segments_dir + segment.name + '.mp4', tmp_dir + segment.name + '.mp4', segment.start, segment.duration)
+        convert_ts(tmp_dir + segment.name + '.mp4', tmp_dir + segment.name + '.ts')
+        if os.path.isfile(tmp_dir + segment.name + '.ts'):
+            ts_list.append(tmp_dir + segment.name + '.ts')
 
-if len(ts_list):
-    concat_videos(ts_list, 'out.mp4')
+    if len(ts_list):
+        concat_videos(ts_list, 'out.mp4')
