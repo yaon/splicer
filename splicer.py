@@ -57,17 +57,18 @@ if __name__ == "__main__":
     try: os.stat(segments_dir)
     except: os.mkdir(segments_dir)
 
-# Parse csv and fill data
+    # Parse csv and fill data
 
     urllib.urlretrieve(data_path, data_csv)
     with open('data.csv', 'rb') as csvfile:
         for row in csv.reader(csvfile, delimiter=',', quotechar='"'):
             data.append(segment_data(row[:10]))
-# Remove first info line
+    # Remove first info line
     data.pop(0)
+    # Remove links line
     data.pop(0)
 
-# Cut videos and convert to ts
+    # Cut videos and convert to ts
     for segment in data:
         get_video(segment.drive_video, segments_dir + segment.name + '.mp4')
         cut_video(segments_dir + segment.name + '.mp4', tmp_dir + segment.name + '.mp4', segment.start, segment.duration)
