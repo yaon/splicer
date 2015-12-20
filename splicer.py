@@ -4,6 +4,8 @@ import subprocess
 import os
 import csv
 import urllib
+import time
+import decimal
 
 # Args
 data_csv='data.csv'
@@ -11,6 +13,8 @@ segments_dir='segments' + os.path.sep
 tmp_dir='tmp' + os.path.sep
 ffmpeg = 'ffmpeg'
 data_path='https://docs.google.com/spreadsheets/d/1Te4rbNSbv0sW3mmqf735K-ryfsPEfnow00Iuvl7di6c/export?format=csv'
+
+def seconds_to_timestamp(seconds): return time.strftime('%H:%M:%S', time.gmtime(seconds)) + str(seconds%1)[1:]
 
 def call (cmd):
     proc = subprocess.Popen(cmd, shell=True)
@@ -31,6 +35,7 @@ def get_video(url, o):
     urllib.urlretrieve(url, o)
 
 def cut_video (i, o, start, duration):
+    duration = seconds_to_timestamp(decimal.Decimal(duration))
     debug = 'cut_video '+str(i)+' '+str(o)+' '+str(start)+' '+str(duration)
     if check_io (i, o, debug):
         call(ffmpeg+' -i '+i+' -ss '+start+' -t '+duration+' -c:v libx264 -c:a aac -strict experimental -b:a 128k '+o)
